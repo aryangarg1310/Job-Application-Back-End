@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Job &nbsp; Application &nbsp; form</title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css
+    "
+    />
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>Job Application Form</h1>
+      <form id="form" class="form-floating">
+        <div class="row">
+          <div class="col">
+            <label for="fname" class="form-label">First Name</label>
+            <input type="text" class="form-control" id="fname" />
+          </div>
+          <div class="col">
+            <label for="lname" class="form-label">Last Name</label>
+            <input type="text" class="form-control" id="lname" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label for="email" class="form-label">Email</label>
+            <input type="text" class="form-control" id="email" />
+          </div>
+          <div class="col">
+            <label for="phone" class="form-label">Phone</label>
+            <input type="number" class="form-control" id="phone" />
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="qualifications" class="form-label">Qualifications</label>
+          <textarea
+            class="form-control"
+            id="qualifications"
+            rows="3"
+          ></textarea>
+        </div>
+        <div class="mb-3">
+          <label for="assessment" class="form-label">Assessments</label>
+          <textarea class="form-control" id="assessment" rows="3"></textarea>
+        </div>
+        <div class="mb-3">
+          <label for="available-to-work"
+            >Are you available for work for the next 10months</label
+          >
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="available-to-work"
+              id="available"
+              value="yes"
+            />
+            <label class="form-check-label" for="available"> Yes </label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="available-to-work"
+              id="not-available"
+              value="no"
+            />
+            <label class="form-check-label" for="not-available"> No </label>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="coverLetter" class="form-label">Cover Letter</label>
+          <textarea class="form-control" id="coverLetter" rows="3"></textarea>
+        </div>
+        <div class="mb-3 form-check">
+          <input type="checkbox" class="form-check-input" id="exampleCheck1" />
+          <label class="form-check-label" for="exampleCheck1"
+            >I have read all the <a href="#">terms and conditions</a></label
+          >
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+
+      <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div
+          id="liveToast"
+          class="toast"
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
+        >
+          <div class="toast-header">
+            <strong class="me-auto">Company Name</strong>
+            <small>0m ago</small>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="toast"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="toast-body">{{MESSAGE}}</div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    let url =
+      "https://job-application-form-backend.herokuapp.com/api/new-application";
+    let form = document.getElementById("form");
+    let fname = document.getElementById("fname");
+    let lname = document.getElementById("lname");
+    let email = document.getElementById("email");
+    let phone = document.getElementById("phone");
+    let qualifications = document.getElementById("qualifications");
+    let assessment = document.getElementById("assessment");
+    let coverLetter = document.getElementById("coverLetter");
+
+    async function fetchReq(url, body) {
+      let response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+      return await response;
+    }
+
+    function showPopup(res) {
+      const popup = document.querySelector("#liveToast");
+      if (res.status == 200) {
+        popup.children[1].innerHTML =
+          "Your application was received successfully";
+        const toast = new bootstrap.Toast(popup);
+        toast.show();
+      } else {
+        popup.children[1].innerHTML = "Some Error Occured";
+        const toast = new bootstrap.Toast(popup);
+        toast.show();
+      }
+    }
+
+    async function handleSubmit() {
+      let name = fname.value + " " + lname.value;
+      let contactInfo = {
+        phone: phone.value,
+        email: email.value,
+      };
+      let available = document.querySelector(
+        'input[name="available-to-work"]:checked'
+      );
+      let formData = {
+        name,
+        contactInfo,
+        qualifications: qualifications.value,
+        assessment: assessment.value,
+        coverLetter: coverLetter.value,
+        availability: available.value == "yes" ? true : false,
+      };
+
+      let res = await fetchReq(url, formData).then((res) => {
+        showPopup(res);
+      });
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      handleSubmit();
+    });
+  </script>
+</html>
